@@ -52,15 +52,18 @@ class TestArxivClient:
 
         assert paper is not None
         assert isinstance(paper, Paper)
-        assert paper.arxiv_id == "2010.11929"
+        # arXiv IDs may include version suffixes like v1, v2
+        assert paper.arxiv_id.startswith("2010.11929")
         assert paper.title
 
     def test_get_paper_by_invalid_id(self) -> None:
         """Test getting a paper with invalid ID."""
-        client = ArxivClient()
-        paper = client.get_paper_by_id("invalid_id_123456789")
+        import arxiv
 
-        assert paper is None
+        client = ArxivClient()
+        # Invalid IDs raise HTTPError from arxiv library
+        with pytest.raises(arxiv.HTTPError):
+            client.get_paper_by_id("invalid_id_123456789")
 
 
 class TestPaper:

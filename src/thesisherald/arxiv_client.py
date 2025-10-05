@@ -64,6 +64,7 @@ class ArxivClient:
     def __init__(self, max_results: int = 10) -> None:
         """Initialize arXiv client."""
         self.max_results = max_results
+        self.client = arxiv.Client()
 
     def search_by_category(
         self,
@@ -90,7 +91,7 @@ class ArxivClient:
         )
 
         papers = []
-        for result in search.results():
+        for result in self.client.results(search):
             papers.append(Paper.from_arxiv_result(result))
 
         return papers
@@ -126,7 +127,7 @@ class ArxivClient:
         )
 
         papers = []
-        for result in search.results():
+        for result in self.client.results(search):
             papers.append(Paper.from_arxiv_result(result))
 
         return papers
@@ -136,7 +137,7 @@ class ArxivClient:
         search = arxiv.Search(id_list=[arxiv_id])
 
         try:
-            result = next(search.results())
+            result = next(self.client.results(search))
             return Paper.from_arxiv_result(result)
         except StopIteration:
             return None
