@@ -9,6 +9,7 @@ from discord.ext import commands
 
 from thesisherald.arxiv_client import ArxivClient
 from thesisherald.config import Config
+from thesisherald.llm_client import LLMClient
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,18 @@ class ThesisHeraldBot(commands.Bot):
         self.arxiv_client = ArxivClient(
             max_results=config.arxiv.default_max_results
         )
+
+        # Initialize LLM client if enabled
+        self.llm_client: LLMClient | None = None
+        if config.llm.enabled:
+            self.llm_client = LLMClient(
+                api_key=config.llm.api_key,
+                model=config.llm.model,
+                max_tokens=config.llm.max_tokens,
+            )
+            logger.info("LLM client initialized")
+        else:
+            logger.warning("LLM client disabled - /ask command will not be available")
 
     async def setup_hook(self) -> None:
         """Setup hook called when bot is starting."""
@@ -195,6 +208,57 @@ def create_bot(config: Config) -> ThesisHeraldBot:
 
         except Exception as e:
             logger.exception("Error in daily command")
+            await interaction.followup.send(
+                f"❌ An error occurred: {str(e)}"
+            )
+
+    @bot.tree.command(
+        name="ask",
+        description="Ask a question and get AI-powered paper recommendations"
+    )
+    @app_commands.describe(
+        question="Your question about research papers or topics"
+    )
+    async def ask(interaction: discord.Interaction, question: str) -> None:
+        """Ask a natural language question with LLM-powered search."""
+        if not bot.llm_client:
+            await interaction.response.send_message(
+                "❌ LLM integration is not enabled. Please configure ANTHROPIC_API_KEY."
+            )
+            return
+
+        await interaction.response.defer()
+
+        try:
+            # Use LLM for conversational search
+            response = await bot.llm_client.conversational_search(question)
+
+            # Split response if too long for Discord (2000 char limit)
+            if len(response) <= 2000:
+                await interaction.followup.send(response)
+            else:
+                # Split into chunks
+                chunks = []
+                current_chunk = ""
+                for line in response.split("\n"):
+                    if len(current_chunk) + len(line) + 1 > 2000:
+                        chunks.append(current_chunk)
+                        current_chunk = line
+                    else:
+                        current_chunk += "\n" + line if current_chunk else line
+
+                if current_chunk:
+                    chunks.append(current_chunk)
+
+                # Send chunks
+                for i, chunk in enumerate(chunks):
+                    if i == 0:
+                        await interaction.followup.send(chunk)
+                    else:
+                        await interaction.channel.send(chunk)  # type: ignore
+
+        except Exception as e:
+            logger.exception("Error in ask command")
             await interaction.followup.send(
                 f"❌ An error occurred: {str(e)}"
             )

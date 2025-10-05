@@ -10,6 +10,8 @@ dependencies = [
     "arxiv>=2.1.0",
     "schedule>=1.2.0",
     "python-dotenv>=1.0.0",
+    "anthropic>=0.18.0",
+    "httpx>=0.27.0",
 ]
 readme = "README.md"
 requires-python = ">= 3.11"
@@ -31,6 +33,7 @@ managed = true
 dev-dependencies = [
     "pytest>=8.0.0",
     "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.23.0",
     "ruff>=0.3.0",
     "mypy>=1.8.0",
 ]
@@ -78,7 +81,7 @@ warn_unused_ignores = true
 strict_equality = true
 
 [[tool.mypy.overrides]]
-module = ["arxiv", "schedule"]
+module = ["arxiv", "schedule", "anthropic"]
 ignore_missing_imports = true
 
 # Pytest configuration
@@ -87,12 +90,16 @@ testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
+markers = [
+    "asyncio: mark test as requiring asyncio",
+]
 addopts = [
     "--cov=src/thesisherald",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--strict-markers",
 ]
+asyncio_mode = "auto"
 
 # Coverage configuration
 [tool.coverage.run]
