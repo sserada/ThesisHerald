@@ -43,7 +43,8 @@ class ThesisHeraldBot(commands.Bot):
 
     async def on_ready(self) -> None:
         """Called when bot is ready."""
-        logger.info(f"Logged in as {self.user} (ID: {self.user.id})")
+        if self.user:
+            logger.info(f"Logged in as {self.user} (ID: {self.user.id})")
         logger.info("Bot is ready!")
 
     async def on_error(self, event: str, *args: Any, **kwargs: Any) -> None:
