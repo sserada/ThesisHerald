@@ -69,11 +69,38 @@ class ArxivConfig:
 
 
 @dataclass
+class LLMConfig:
+    """Configuration for LLM API."""
+
+    api_key: str
+    model: str
+    max_tokens: int
+    enabled: bool
+
+    @classmethod
+    def from_env(cls) -> "LLMConfig":
+        """Load configuration from environment variables."""
+        api_key = os.getenv("ANTHROPIC_API_KEY", "")
+        enabled = bool(api_key)
+
+        model = os.getenv("LLM_MODEL", "claude-3-5-sonnet-20241022")
+        max_tokens = int(os.getenv("LLM_MAX_TOKENS", "4096"))
+
+        return cls(
+            api_key=api_key,
+            model=model,
+            max_tokens=max_tokens,
+            enabled=enabled,
+        )
+
+
+@dataclass
 class Config:
     """Main configuration container."""
 
     bot: BotConfig
     arxiv: ArxivConfig
+    llm: LLMConfig
 
     @classmethod
     def load(cls) -> "Config":
@@ -81,4 +108,5 @@ class Config:
         return cls(
             bot=BotConfig.from_env(),
             arxiv=ArxivConfig.from_env(),
+            llm=LLMConfig.from_env(),
         )
