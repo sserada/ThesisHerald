@@ -99,7 +99,7 @@ class TestLLMClient:
             assert "Error performing web search" in result
             assert "Network error" in result
 
-    def test_execute_arxiv_search(self) -> None:
+    async def test_execute_arxiv_search(self) -> None:
         """Test arXiv search execution."""
         client = LLMClient(api_key="test_key")
 
@@ -123,32 +123,32 @@ class TestLLMClient:
             ]
             mock_search.return_value = mock_papers
 
-            result = client._execute_arxiv_search("machine learning", max_results=5)
+            result = await client._execute_arxiv_search("machine learning", max_results=5)
 
             assert "Found 1 papers" in result
             assert "Test Paper 1" in result
             assert "Author 1" in result
             assert "2023.12345" in result
 
-    def test_execute_arxiv_search_no_results(self) -> None:
+    async def test_execute_arxiv_search_no_results(self) -> None:
         """Test arXiv search with no results."""
         client = LLMClient(api_key="test_key")
 
         with patch.object(client.arxiv_client, "search_by_keywords") as mock_search:
             mock_search.return_value = []
 
-            result = client._execute_arxiv_search("nonexistent topic")
+            result = await client._execute_arxiv_search("nonexistent topic")
 
             assert "No papers found" in result
 
-    def test_execute_arxiv_search_error_handling(self) -> None:
+    async def test_execute_arxiv_search_error_handling(self) -> None:
         """Test arXiv search error handling."""
         client = LLMClient(api_key="test_key")
 
         with patch.object(client.arxiv_client, "search_by_keywords") as mock_search:
             mock_search.side_effect = Exception("API error")
 
-            result = client._execute_arxiv_search("test query")
+            result = await client._execute_arxiv_search("test query")
 
             assert "Error searching arXiv" in result
             assert "API error" in result

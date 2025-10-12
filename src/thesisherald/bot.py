@@ -117,7 +117,7 @@ def create_bot(config: Config) -> ThesisHeraldBot:
         await interaction.response.defer()
 
         try:
-            papers = bot.arxiv_client.search_by_category(
+            papers = await bot.arxiv_client.search_by_category(
                 categories=[category],
                 max_results=min(max_results, 20)  # Limit to 20 max
             )
@@ -160,7 +160,7 @@ def create_bot(config: Config) -> ThesisHeraldBot:
 
         try:
             keyword_list = [kw.strip() for kw in keywords.split(",")]
-            papers = bot.arxiv_client.search_by_keywords(
+            papers = await bot.arxiv_client.search_by_keywords(
                 keywords=keyword_list,
                 max_results=min(max_results, 20)  # Limit to 20 max
             )
@@ -194,7 +194,7 @@ def create_bot(config: Config) -> ThesisHeraldBot:
         await interaction.response.defer()
 
         try:
-            papers = bot.arxiv_client.search_by_category(
+            papers = await bot.arxiv_client.search_by_category(
                 categories=bot.config.arxiv.default_categories,
                 max_results=bot.config.arxiv.default_max_results
             )

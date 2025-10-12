@@ -1,5 +1,6 @@
 """arXiv API client for fetching research papers."""
 
+import asyncio
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -66,14 +67,14 @@ class ArxivClient:
         self.max_results = max_results
         self.client = arxiv.Client()
 
-    def search_by_category(
+    def _search_by_category_sync(
         self,
         categories: list[str],
         max_results: int | None = None,
         sort_by: arxiv.SortCriterion = arxiv.SortCriterion.SubmittedDate,
         sort_order: arxiv.SortOrder = arxiv.SortOrder.Descending,
     ) -> list[Paper]:
-        """Search papers by categories."""
+        """Synchronous helper for searching papers by categories."""
         results_limit = max_results or self.max_results
 
         # Build query for multiple categories
@@ -96,7 +97,24 @@ class ArxivClient:
 
         return papers
 
-    def search_by_keywords(
+    async def search_by_category(
+        self,
+        categories: list[str],
+        max_results: int | None = None,
+        sort_by: arxiv.SortCriterion = arxiv.SortCriterion.SubmittedDate,
+        sort_order: arxiv.SortOrder = arxiv.SortOrder.Descending,
+    ) -> list[Paper]:
+        """Search papers by categories (async)."""
+        # Run sync operation in thread pool to avoid blocking event loop
+        return await asyncio.to_thread(
+            self._search_by_category_sync,
+            categories,
+            max_results,
+            sort_by,
+            sort_order,
+        )
+
+    def _search_by_keywords_sync(
         self,
         keywords: list[str],
         categories: list[str] | None = None,
@@ -104,7 +122,7 @@ class ArxivClient:
         sort_by: arxiv.SortCriterion = arxiv.SortCriterion.SubmittedDate,
         sort_order: arxiv.SortOrder = arxiv.SortOrder.Descending,
     ) -> list[Paper]:
-        """Search papers by keywords and optional categories."""
+        """Synchronous helper for searching papers by keywords."""
         results_limit = max_results or self.max_results
 
         # Build keyword query
@@ -132,8 +150,27 @@ class ArxivClient:
 
         return papers
 
-    def get_paper_by_id(self, arxiv_id: str) -> Paper | None:
-        """Get a specific paper by its arXiv ID."""
+    async def search_by_keywords(
+        self,
+        keywords: list[str],
+        categories: list[str] | None = None,
+        max_results: int | None = None,
+        sort_by: arxiv.SortCriterion = arxiv.SortCriterion.SubmittedDate,
+        sort_order: arxiv.SortOrder = arxiv.SortOrder.Descending,
+    ) -> list[Paper]:
+        """Search papers by keywords and optional categories (async)."""
+        # Run sync operation in thread pool to avoid blocking event loop
+        return await asyncio.to_thread(
+            self._search_by_keywords_sync,
+            keywords,
+            categories,
+            max_results,
+            sort_by,
+            sort_order,
+        )
+
+    def _get_paper_by_id_sync(self, arxiv_id: str) -> Paper | None:
+        """Synchronous helper for getting a paper by ID."""
         search = arxiv.Search(id_list=[arxiv_id])
 
         try:
@@ -141,3 +178,8 @@ class ArxivClient:
             return Paper.from_arxiv_result(result)
         except StopIteration:
             return None
+
+    async def get_paper_by_id(self, arxiv_id: str) -> Paper | None:
+        """Get a specific paper by its arXiv ID (async)."""
+        # Run sync operation in thread pool to avoid blocking event loop
+        return await asyncio.to_thread(self._get_paper_by_id_sync, arxiv_id)

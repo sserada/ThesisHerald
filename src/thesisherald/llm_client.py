@@ -111,13 +111,13 @@ class LLMClient:
             logger.error(f"Web search error: {e}")
             return f"Error performing web search: {str(e)}"
 
-    def _execute_arxiv_search(
+    async def _execute_arxiv_search(
         self, query: str, categories: list[str] | None = None, max_results: int = 5
     ) -> str:
         """Execute arXiv search."""
         try:
             keywords = [kw.strip() for kw in query.split(",")]
-            papers = self.arxiv_client.search_by_keywords(
+            papers = await self.arxiv_client.search_by_keywords(
                 keywords=keywords,
                 categories=categories,
                 max_results=max_results,
@@ -204,7 +204,7 @@ class LLMClient:
                                     tool_input["query"]  # type: ignore[index]
                                 )
                             elif tool_name == "arxiv_search":
-                                result = self._execute_arxiv_search(
+                                result = await self._execute_arxiv_search(
                                     query=tool_input["query"],  # type: ignore[index]
                                     categories=tool_input.get("categories"),  # type: ignore[attr-defined]
                                     max_results=tool_input.get("max_results", 5),  # type: ignore[attr-defined]

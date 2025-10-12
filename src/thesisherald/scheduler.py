@@ -25,7 +25,7 @@ class TaskScheduler:
         logger.info("Running daily paper notification task...")
 
         try:
-            papers = self.bot.arxiv_client.search_by_category(
+            papers = await self.bot.arxiv_client.search_by_category(
                 categories=self.config.arxiv.default_categories,
                 max_results=self.config.arxiv.default_max_results,
             )
