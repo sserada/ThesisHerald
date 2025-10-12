@@ -3,6 +3,7 @@
 import asyncio
 import logging
 
+import arxiv
 import schedule
 
 from thesisherald.bot import ThesisHeraldBot
@@ -35,6 +36,10 @@ class TaskScheduler:
 
             logger.info(
                 f"Successfully sent {len(papers)} papers to channel {channel_id}"
+            )
+        except arxiv.HTTPError as e:
+            logger.error(
+                f"arXiv API error in daily notification (HTTP {e.status}): {e}"
             )
         except Exception as e:
             logger.exception(f"Error in daily paper notification: {e}")
