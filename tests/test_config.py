@@ -48,9 +48,11 @@ class TestBotConfig:
             "NOTIFICATION_CHANNEL_ID": "987654321",
         }
 
-        with patch.dict(os.environ, env_vars, clear=True):
-            with pytest.raises(ValueError, match="DISCORD_TOKEN"):
-                BotConfig.from_env()
+        with (
+            patch.dict(os.environ, env_vars, clear=True),
+            pytest.raises(ValueError, match="DISCORD_TOKEN"),
+        ):
+            BotConfig.from_env()
 
     def test_from_env_missing_channel_id_raises_error(self) -> None:
         """Test that missing channel ID raises ValueError."""
@@ -58,9 +60,11 @@ class TestBotConfig:
             "DISCORD_TOKEN": "test_token_123",
         }
 
-        with patch.dict(os.environ, env_vars, clear=True):
-            with pytest.raises(ValueError, match="NOTIFICATION_CHANNEL_ID"):
-                BotConfig.from_env()
+        with (
+            patch.dict(os.environ, env_vars, clear=True),
+            pytest.raises(ValueError, match="NOTIFICATION_CHANNEL_ID"),
+        ):
+            BotConfig.from_env()
 
 
 class TestArxivConfig:

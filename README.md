@@ -31,6 +31,24 @@ A Discord bot for automated research paper collection, notification, and analysi
 - Discord Server with appropriate permissions
 - Anthropic API Key (for Phase 2 LLM features)
 
+### Discord Bot Setup
+
+⚠️ **Important:** Before running the bot, you must enable Privileged Gateway Intents in the Discord Developer Portal.
+
+1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
+2. Select your application
+3. Go to the "Bot" section
+4. Scroll down to "Privileged Gateway Intents"
+5. Enable the following intents:
+   - ✅ **Presence Intent**
+   - ✅ **Server Members Intent**
+   - ✅ **Message Content Intent** (Required)
+6. Click "Save Changes"
+
+**Without these intents enabled, the bot will fail to start with a `PrivilegedIntentsRequired` error.**
+
+For detailed setup instructions, see [Deployment Guide](docs/deployment.md#discord-bot-setup).
+
 ### Setup
 
 1. **Clone the repository**

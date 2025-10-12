@@ -3,6 +3,7 @@
 import logging
 from typing import Any
 
+import arxiv
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -117,7 +118,7 @@ def create_bot(config: Config) -> ThesisHeraldBot:
         await interaction.response.defer()
 
         try:
-            papers = bot.arxiv_client.search_by_category(
+            papers = await bot.arxiv_client.search_by_category(
                 categories=[category],
                 max_results=min(max_results, 20)  # Limit to 20 max
             )
@@ -138,9 +139,16 @@ def create_bot(config: Config) -> ThesisHeraldBot:
 
         except Exception as e:
             logger.exception("Error in search command")
-            await interaction.followup.send(
-                f"❌ An error occurred while searching: {str(e)}"
-            )
+
+            if isinstance(e, arxiv.HTTPError):
+                await interaction.followup.send(
+                    f"❌ arXiv API is temporarily unavailable (HTTP {e.status}). "
+                    "Please try again in a few moments."
+                )
+            else:
+                await interaction.followup.send(
+                    f"❌ An error occurred while searching: {str(e)}"
+                )
 
     @bot.tree.command(
         name="keywords",
@@ -160,7 +168,7 @@ def create_bot(config: Config) -> ThesisHeraldBot:
 
         try:
             keyword_list = [kw.strip() for kw in keywords.split(",")]
-            papers = bot.arxiv_client.search_by_keywords(
+            papers = await bot.arxiv_client.search_by_keywords(
                 keywords=keyword_list,
                 max_results=min(max_results, 20)  # Limit to 20 max
             )
@@ -181,9 +189,16 @@ def create_bot(config: Config) -> ThesisHeraldBot:
 
         except Exception as e:
             logger.exception("Error in keywords command")
-            await interaction.followup.send(
-                f"❌ An error occurred while searching: {str(e)}"
-            )
+
+            if isinstance(e, arxiv.HTTPError):
+                await interaction.followup.send(
+                    f"❌ arXiv API is temporarily unavailable (HTTP {e.status}). "
+                    "Please try again in a few moments."
+                )
+            else:
+                await interaction.followup.send(
+                    f"❌ An error occurred while searching: {str(e)}"
+                )
 
     @bot.tree.command(
         name="daily",
@@ -194,7 +209,7 @@ def create_bot(config: Config) -> ThesisHeraldBot:
         await interaction.response.defer()
 
         try:
-            papers = bot.arxiv_client.search_by_category(
+            papers = await bot.arxiv_client.search_by_category(
                 categories=bot.config.arxiv.default_categories,
                 max_results=bot.config.arxiv.default_max_results
             )
@@ -208,9 +223,16 @@ def create_bot(config: Config) -> ThesisHeraldBot:
 
         except Exception as e:
             logger.exception("Error in daily command")
-            await interaction.followup.send(
-                f"❌ An error occurred: {str(e)}"
-            )
+
+            if isinstance(e, arxiv.HTTPError):
+                await interaction.followup.send(
+                    f"❌ arXiv API is temporarily unavailable (HTTP {e.status}). "
+                    "Please try again in a few moments."
+                )
+            else:
+                await interaction.followup.send(
+                    f"❌ An error occurred: {str(e)}"
+                )
 
     @bot.tree.command(
         name="ask",
