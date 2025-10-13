@@ -48,6 +48,9 @@ async def main() -> None:
         # Schedule the daily task
         scheduler.schedule_daily_task()
 
+        # Schedule the weekly digest task
+        scheduler.schedule_weekly_digest()
+
         # Start both the bot and scheduler
         logger.info("Starting bot and scheduler...")
         async with bot:

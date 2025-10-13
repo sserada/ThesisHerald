@@ -116,6 +116,47 @@ class TranslationConfig:
 
 
 @dataclass
+class DigestConfig:
+    """Configuration for weekly digest feature."""
+
+    enabled: bool
+    topics: list[str]
+    day_of_week: int  # 0=Monday, 6=Sunday
+    time: str  # Format: "HH:MM"
+    channel_id: int
+    language: str
+
+    @classmethod
+    def from_env(cls) -> "DigestConfig":
+        """Load configuration from environment variables."""
+        enabled_str = os.getenv("DIGEST_ENABLED", "false").lower()
+        enabled = enabled_str in ("true", "1", "yes")
+
+        topics_str = os.getenv("DIGEST_TOPICS", "")
+        topics = [topic.strip() for topic in topics_str.split(",") if topic.strip()]
+
+        day_of_week = int(os.getenv("DIGEST_DAY", "0"))
+        time = os.getenv("DIGEST_TIME", "09:00")
+
+        # Use NOTIFICATION_CHANNEL_ID as fallback
+        channel_id_str = os.getenv(
+            "DIGEST_CHANNEL_ID", os.getenv("NOTIFICATION_CHANNEL_ID", "")
+        )
+        channel_id = int(channel_id_str) if channel_id_str else 0
+
+        language = os.getenv("DIGEST_LANGUAGE", "en")
+
+        return cls(
+            enabled=enabled,
+            topics=topics,
+            day_of_week=day_of_week,
+            time=time,
+            channel_id=channel_id,
+            language=language,
+        )
+
+
+@dataclass
 class Config:
     """Main configuration container."""
 
@@ -123,6 +164,7 @@ class Config:
     arxiv: ArxivConfig
     llm: LLMConfig
     translation: TranslationConfig
+    digest: DigestConfig
 
     @classmethod
     def load(cls) -> "Config":
@@ -132,4 +174,5 @@ class Config:
             arxiv=ArxivConfig.from_env(),
             llm=LLMConfig.from_env(),
             translation=TranslationConfig.from_env(),
+            digest=DigestConfig.from_env(),
         )
