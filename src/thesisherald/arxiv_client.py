@@ -1,10 +1,14 @@
 """arXiv API client for fetching research papers."""
 
 import asyncio
+import logging
 from dataclasses import dataclass
 from datetime import datetime
 
 import arxiv
+from deep_translator import GoogleTranslator  # type: ignore[import-untyped]
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -36,16 +40,21 @@ class Paper:
             primary_category=result.primary_category,
         )
 
-    def format_discord_message(self) -> str:
-        """Format paper information for Discord message."""
+    def format_discord_message(
+        self, translate: bool = False, target_lang: str = "ja"
+    ) -> str:
+        """Format paper information for Discord message.
+
+        Args:
+            translate: Whether to translate the abstract
+            target_lang: Target language code (ISO 639-1)
+        """
         authors_str = ", ".join(self.authors[:3])
         if len(self.authors) > 3:
             authors_str += f" et al. ({len(self.authors)} authors)"
 
-        # Truncate summary if too long
+        # Clean up summary (remove newlines but don't truncate)
         summary = self.summary.replace("\n", " ")
-        if len(summary) > 300:
-            summary = summary[:297] + "..."
 
         message = f"""**{self.title}**
 **Authors:** {authors_str}
@@ -54,8 +63,33 @@ class Paper:
 **arXiv ID:** {self.arxiv_id}
 **PDF:** {self.pdf_url}
 
+**Abstract:**
 {summary}
 """
+
+        # Add translation if enabled
+        if translate:
+            try:
+                translator = GoogleTranslator(source="auto", target=target_lang)
+                translated_summary = translator.translate(summary)
+
+                # Add translated version with language-specific label
+                lang_labels = {
+                    "ja": "要約",
+                    "ko": "요약",
+                    "zh-CN": "摘要",
+                    "zh-TW": "摘要",
+                    "es": "Resumen",
+                    "fr": "Résumé",
+                    "de": "Zusammenfassung",
+                }
+                label = lang_labels.get(target_lang, f"Abstract ({target_lang})")
+
+                message += f"\n**{label}:**\n{translated_summary}\n"
+            except Exception as e:
+                logger.error(f"Translation failed for paper {self.arxiv_id}: {e}")
+                # Continue without translation if it fails
+
         return message
 
 

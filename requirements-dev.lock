@@ -29,6 +29,8 @@ attrs==25.3.0
     # via aiohttp
 audioop-lts==0.2.2
     # via discord-py
+beautifulsoup4==4.14.2
+    # via deep-translator
 certifi==2025.10.5
     # via httpcore
     # via httpx
@@ -37,6 +39,8 @@ charset-normalizer==3.4.3
     # via requests
 coverage==7.10.7
     # via pytest-cov
+deep-translator==1.11.4
+    # via thesisherald
 discord-py==2.6.3
     # via thesisherald
 distro==1.9.0
@@ -95,6 +99,7 @@ python-dotenv==1.1.1
     # via thesisherald
 requests==2.32.5
     # via arxiv
+    # via deep-translator
 ruff==0.13.3
 schedule==1.2.2
     # via thesisherald
@@ -103,8 +108,11 @@ sgmllib3k==1.0.0
 sniffio==1.3.1
     # via anthropic
     # via anyio
+soupsieve==2.8
+    # via beautifulsoup4
 typing-extensions==4.15.0
     # via anthropic
+    # via beautifulsoup4
     # via mypy
     # via pydantic
     # via pydantic-core

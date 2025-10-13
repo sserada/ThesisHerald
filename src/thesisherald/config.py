@@ -95,12 +95,34 @@ class LLMConfig:
 
 
 @dataclass
+class TranslationConfig:
+    """Configuration for abstract translation."""
+
+    enabled: bool
+    target_language: str
+
+    @classmethod
+    def from_env(cls) -> "TranslationConfig":
+        """Load configuration from environment variables."""
+        enabled_str = os.getenv("ENABLE_TRANSLATION", "false").lower()
+        enabled = enabled_str in ("true", "1", "yes")
+
+        target_language = os.getenv("TRANSLATION_TARGET_LANG", "ja")
+
+        return cls(
+            enabled=enabled,
+            target_language=target_language,
+        )
+
+
+@dataclass
 class Config:
     """Main configuration container."""
 
     bot: BotConfig
     arxiv: ArxivConfig
     llm: LLMConfig
+    translation: TranslationConfig
 
     @classmethod
     def load(cls) -> "Config":
@@ -109,4 +131,5 @@ class Config:
             bot=BotConfig.from_env(),
             arxiv=ArxivConfig.from_env(),
             llm=LLMConfig.from_env(),
+            translation=TranslationConfig.from_env(),
         )

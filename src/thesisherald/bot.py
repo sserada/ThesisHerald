@@ -16,6 +16,42 @@ from thesisherald.llm_client import LLMClient
 logger = logging.getLogger(__name__)
 
 
+async def send_long_message(
+    channel: discord.abc.Messageable, content: str, max_length: int = 2000
+) -> None:
+    """Send a message, splitting it if it exceeds Discord's character limit.
+
+    Args:
+        channel: The channel or thread to send to
+        content: The message content
+        max_length: Maximum length per message (Discord limit is 2000)
+    """
+    if len(content) <= max_length:
+        await channel.send(content)
+        return
+
+    # Split by lines to avoid breaking in the middle of content
+    lines = content.split("\n")
+    current_chunk = ""
+
+    for line in lines:
+        # If adding this line would exceed the limit, send current chunk
+        if len(current_chunk) + len(line) + 1 > max_length:
+            if current_chunk:
+                await channel.send(current_chunk)
+                current_chunk = line + "\n"
+            else:
+                # Single line is too long, need to split it
+                for i in range(0, len(line), max_length):
+                    await channel.send(line[i : i + max_length])
+        else:
+            current_chunk += line + "\n"
+
+    # Send remaining content
+    if current_chunk:
+        await channel.send(current_chunk.rstrip())
+
+
 class ThesisHeraldBot(commands.Bot):
     """Discord bot for research paper notifications and searches."""
 
@@ -93,8 +129,12 @@ class ThesisHeraldBot(commands.Bot):
         # Send each paper to the thread
         for i, paper in enumerate(papers, 1):
             try:
-                message = f"**[{i}/{len(papers)}]**\n{paper.format_discord_message()}\n{'-' * 50}"
-                await thread.send(message)
+                formatted = paper.format_discord_message(
+                    translate=self.config.translation.enabled,
+                    target_lang=self.config.translation.target_language,
+                )
+                message = f"**[{i}/{len(papers)}]**\n{formatted}\n{'-' * 50}"
+                await send_long_message(thread, message)
             except discord.HTTPException as e:
                 logger.error(f"Failed to send paper {paper.arxiv_id}: {e}")
 
@@ -158,8 +198,12 @@ def create_bot(config: Config) -> ThesisHeraldBot:
 
             # Send all papers in the thread
             for i, paper in enumerate(papers, 1):
-                message = f"**[{i}/{len(papers)}]**\n{paper.format_discord_message()}\n{'-' * 50}"
-                await thread.send(message)
+                formatted = paper.format_discord_message(
+                    translate=bot.config.translation.enabled,
+                    target_lang=bot.config.translation.target_language,
+                )
+                message = f"**[{i}/{len(papers)}]**\n{formatted}\n{'-' * 50}"
+                await send_long_message(thread, message)
 
         except Exception as e:
             logger.exception("Error in search command")
@@ -225,8 +269,12 @@ def create_bot(config: Config) -> ThesisHeraldBot:
 
             # Send all papers in the thread
             for i, paper in enumerate(papers, 1):
-                message = f"**[{i}/{len(papers)}]**\n{paper.format_discord_message()}\n{'-' * 50}"
-                await thread.send(message)
+                formatted = paper.format_discord_message(
+                    translate=bot.config.translation.enabled,
+                    target_lang=bot.config.translation.target_language,
+                )
+                message = f"**[{i}/{len(papers)}]**\n{formatted}\n{'-' * 50}"
+                await send_long_message(thread, message)
 
         except Exception as e:
             logger.exception("Error in keywords command")
