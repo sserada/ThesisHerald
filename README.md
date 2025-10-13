@@ -10,7 +10,7 @@ A Discord bot for automated research paper collection, notification, and analysi
 
 ## ✨ Features
 
-### 📚 Core Features (Phase 1) ✅
+### 📚 Paper Discovery & Notifications
 - **Automated Daily Notifications**: Fetches new papers from arXiv based on configured categories and posts them to Discord
 - **Search by Category**: Use `/search` command to find papers in specific arXiv categories (e.g., cs.AI, cs.LG)
 - **Keyword Search**: Use `/keywords` command to search papers by keywords
@@ -18,22 +18,18 @@ A Discord bot for automated research paper collection, notification, and analysi
 - **Scheduled Tasks**: Configurable daily notifications at specified times
 - **Thread-Based Display**: Search results organized in Discord threads for clean channel management
 
-### 🤖 AI-Powered Features (Phase 2) ✅
+### 🤖 AI-Powered Search
 - **Conversational Search**: Ask natural language questions using `/ask` command
 - **LLM Integration**: Powered by Anthropic Claude for intelligent paper recommendations
 - **Web Search Tool**: LLM can search the web for real-time research information
 - **arXiv Integration**: LLM can directly search and retrieve papers from arXiv
 - **Context-Aware Responses**: Get relevant papers with AI-generated insights
 
-### 🌍 Translation & Accessibility ✅
+### 🌍 Translation & Accessibility
 - **Abstract Translation**: Optional translation of paper abstracts to your preferred language
 - **Full Abstract Display**: Complete abstracts shown without truncation
 - **Multi-Language Support**: Supports Japanese, Korean, Chinese, Spanish, French, German, and more
 - **Configurable**: Enable/disable translation via environment variables
-
-### Upcoming Features
-- **Phase 3**: Paper summarization and automatic digest generation
-- **Phase 4**: Production deployment and monitoring
 
 ## Installation
 
@@ -228,25 +224,16 @@ Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md) for detailed contribution 
 
 This project is open source and available under the MIT License.
 
-## 🗺️ Roadmap
+## 🔮 Future Enhancements
 
-See [docs/plan.md](docs/plan.md) for the detailed development plan.
+We're continuously improving ThesisHerald. Upcoming features include:
 
-- [x] **Phase 1**: Basic notification and search functionality
-  - [x] Daily automated notifications
-  - [x] Search by category and keywords
-  - [x] Thread-based result display
-- [x] **Phase 2**: LLM integration for conversational search
-  - [x] Natural language queries with `/ask`
-  - [x] Web search and arXiv integration
-  - [x] Abstract translation support
-- [ ] **Phase 3**: Paper summarization and digest generation
-  - [ ] `/summarize` command for paper summaries
-  - [ ] Weekly digest generation
-- [ ] **Phase 4**: Production deployment and monitoring
-  - [ ] Cloud deployment guides
-  - [ ] Monitoring and logging
-  - [ ] Error handling improvements
+- **Paper Summarization**: `/summarize` command to generate concise paper summaries
+- **Weekly Digests**: Automated weekly summaries of important papers in your field
+- **Enhanced Filtering**: More advanced search and filtering options
+- **Performance Monitoring**: Better logging and performance tracking
+
+For detailed development plans, see [docs/plan.md](docs/plan.md).
 
 ## 💰 API Costs
 
