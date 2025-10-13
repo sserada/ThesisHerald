@@ -331,3 +331,114 @@ Write your entire response {lang_instruction}."""
         except Exception as e:
             logger.exception(f"Error generating paper summary: {e}")
             return f"❌ Failed to generate summary: {str(e)}"
+
+    async def generate_weekly_digest(
+        self, topic: str, language: str = "en", days: int = 7
+    ) -> str:
+        """Generate a weekly digest of important papers on a specific topic.
+
+        Args:
+            topic: Research topic to generate digest for
+            language: Target language for the digest
+            days: Number of days to look back for papers (default: 7)
+
+        Returns:
+            Formatted digest with topic overview and top papers
+        """
+        # Language-specific instructions
+        language_instructions = {
+            "en": "in English",
+            "ja": "in Japanese (日本語)",
+            "zh": "in Chinese (中文)",
+            "ko": "in Korean (한국어)",
+            "es": "in Spanish (Español)",
+            "fr": "in French (Français)",
+            "de": "in German (Deutsch)",
+        }
+
+        lang_instruction = language_instructions.get(
+            language.lower(), f"in {language}"
+        )
+
+        try:
+            # Search for recent papers on the topic
+            papers = await self.arxiv_client.search_by_keywords(
+                keywords=[topic],
+                max_results=20,  # Get more papers for LLM to analyze
+            )
+
+            if not papers:
+                return f"📭 No papers found for topic: **{topic}**"
+
+            # Prepare papers information for LLM
+            papers_info = []
+            for i, paper in enumerate(papers[:20], 1):
+                paper_info = f"""{i}. **{paper.title}**
+   Authors: {', '.join(paper.authors[:3])}{'...' if len(paper.authors) > 3 else ''}
+   Published: {paper.published.strftime('%Y-%m-%d')}
+   arXiv ID: {paper.arxiv_id}
+   Categories: {', '.join(paper.categories[:3])}
+   Abstract: {paper.summary[:300]}..."""
+                papers_info.append(paper_info)
+
+            papers_list = "\n\n".join(papers_info)
+
+            prompt = f"""You are a research digest curator. Analyze the following recent papers \
+on the topic "{topic}" and create a weekly digest {lang_instruction}.
+
+RECENT PAPERS:
+{papers_list}
+
+Please provide:
+1. **Topic Overview** (2-3 sentences): Current trends and developments in this field
+2. **Top Papers** (5-7 papers): Select the most important/impactful papers and for each provide:
+   - Paper number from the list (e.g., #3)
+   - Brief summary (2-3 sentences)
+   - Key contributions (2-3 bullet points)
+   - Why it's important
+
+Format your response as:
+📊 **Weekly Digest: [Topic Name]**
+
+**🔍 Topic Overview:**
+[Your 2-3 sentence overview of current trends]
+
+**📚 Top Papers:**
+
+**#[number] - [Paper Title]**
+**Summary:** [2-3 sentence summary]
+**Key Contributions:**
+• [Contribution 1]
+• [Contribution 2]
+**Why It Matters:** [1-2 sentences]
+**Link:** https://arxiv.org/abs/[arxiv_id]
+
+[Repeat for each top paper]
+
+Focus on papers with novel contributions, practical impact, or significant advancement. \
+Write your entire response {lang_instruction}."""
+
+            response: Message = self.client.messages.create(
+                model=self.model,
+                max_tokens=self.max_tokens,
+                messages=[{"role": "user", "content": prompt}],
+            )
+
+            # Extract text content
+            text_content = []
+            for block in response.content:
+                if isinstance(block, TextBlock):
+                    text_content.append(block.text)
+
+            digest = "\n".join(text_content)
+
+            # Add metadata footer
+            from datetime import datetime
+
+            footer = f"\n\n---\n*Generated on {datetime.now().strftime('%Y-%m-%d')} \
+| Analyzed {len(papers)} recent papers*"
+            return digest + footer
+
+        except Exception as e:
+            logger.exception(f"Error generating weekly digest: {e}")
+            return f"❌ Failed to generate digest for topic '{topic}': {str(e)}"

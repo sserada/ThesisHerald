@@ -407,6 +407,68 @@ def create_bot(config: Config) -> ThesisHeraldBot:
                 )
 
     @bot.tree.command(
+        name="digest",
+        description="Generate weekly digest of important papers on a topic"
+    )
+    @app_commands.describe(
+        topic="Research topic (e.g., 'transformer architectures', 'quantum computing')",
+        language="Language for the digest (en, ja, zh, ko, etc. Default: en)"
+    )
+    async def digest(
+        interaction: discord.Interaction,
+        topic: str,
+        language: str = "en"
+    ) -> None:
+        """Generate a weekly digest of papers on a specific topic."""
+        if not bot.llm_client:
+            await interaction.response.send_message(
+                "❌ LLM integration is not enabled. Please configure ANTHROPIC_API_KEY."
+            )
+            return
+
+        await interaction.response.defer()
+
+        try:
+            # Generate digest using LLM
+            digest = await bot.llm_client.generate_weekly_digest(
+                topic=topic,
+                language=language
+            )
+
+            # Create thread for the digest
+            if interaction.channel:
+                from datetime import datetime
+
+                # Create initial message to attach thread to
+                date_str = datetime.now().strftime("%Y-%m-%d")
+                initial_msg = await interaction.channel.send(  # type: ignore[union-attr]
+                    f"📊 Generating weekly digest for: **{topic}**"
+                )
+
+                # Create thread
+                thread = await initial_msg.create_thread(
+                    name=f"Weekly Digest: {topic[:60]} - {date_str}",
+                    auto_archive_duration=1440
+                )
+
+                # Send digest in thread
+                await send_long_message(thread, digest)
+
+                # Update initial message with thread link
+                await interaction.followup.send(
+                    f"✅ Weekly digest generated! View it in the thread: {thread.mention}"
+                )
+            else:
+                # Fallback if no channel
+                await interaction.followup.send(digest[:2000])
+
+        except Exception as e:
+            logger.exception("Error in digest command")
+            await interaction.followup.send(
+                f"❌ An error occurred: {str(e)}"
+            )
+
+    @bot.tree.command(
         name="ask",
         description="Ask a question and get AI-powered paper recommendations"
     )
