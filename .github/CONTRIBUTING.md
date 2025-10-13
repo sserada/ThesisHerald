@@ -16,12 +16,33 @@ Thank you for your interest in contributing to ThesisHerald! We welcome contribu
 ## Getting Started
 
 1. **Fork the repository** and clone it locally
-2. **Create a branch** for your changes:
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/ThesisHerald.git
+   cd ThesisHerald
+   ```
+
+2. **Install Rye** (if not already installed):
+   ```bash
+   curl -sSf https://rye-up.com/get | bash
+   ```
+
+3. **Install dependencies**:
+   ```bash
+   rye sync
+   ```
+
+4. **Set up environment variables**:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your test credentials
+   ```
+
+5. **Create a branch** for your changes:
    ```bash
    git checkout -b feature/your-feature-name
    ```
-3. **Install dependencies** (if applicable)
-4. **Make your changes** following our coding standards
+
+6. **Make your changes** following our coding standards
 
 ## Development Process
 
@@ -49,11 +70,43 @@ Thank you for your interest in contributing to ThesisHerald! We welcome contribu
 
 ## Coding Standards
 
+### Code Quality
 - Write clear, readable code with meaningful variable names
 - Comment complex logic and non-obvious decisions
 - Follow the existing code style and patterns
 - Keep functions small and focused on a single responsibility
 - Write self-documenting code when possible
+
+### Python Style
+- Follow PEP 8 guidelines
+- Use type hints for all function signatures
+- Format code with `ruff format`
+- Run linting with `ruff check`
+- Verify types with `mypy`
+
+### Testing
+- Write tests for new features
+- Ensure all tests pass before submitting PR:
+  ```bash
+  rye run pytest
+  ```
+- Maintain or improve test coverage
+
+### Quality Checks
+Before submitting, run:
+```bash
+# Format code
+rye run ruff format
+
+# Check linting
+rye run ruff check
+
+# Type checking
+rye run mypy src/
+
+# Run tests
+rye run pytest
+```
 
 ## Commit Messages
 
