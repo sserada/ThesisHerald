@@ -294,9 +294,14 @@ def create_bot(config: Config) -> ThesisHeraldBot:
         description="Generate AI-powered summary of a research paper"
     )
     @app_commands.describe(
-        arxiv_input="arXiv ID or URL (e.g., 2010.11929 or https://arxiv.org/abs/2010.11929)"
+        arxiv_input="arXiv ID or URL (e.g., 2010.11929 or https://arxiv.org/abs/2010.11929)",
+        language="Language for the summary (en, ja, zh, ko, etc. Default: en)"
     )
-    async def summarize(interaction: discord.Interaction, arxiv_input: str) -> None:
+    async def summarize(
+        interaction: discord.Interaction,
+        arxiv_input: str,
+        language: str = "en"
+    ) -> None:
         """Generate an AI-powered summary of a research paper."""
         # Check if LLM is enabled
         if not bot.llm_client:
@@ -329,13 +334,31 @@ def create_bot(config: Config) -> ThesisHeraldBot:
                 )
                 return
 
-            # Generate summary using LLM
-            summary = await bot.llm_client.summarize_paper(paper)
+            # Generate summary using LLM with specified language
+            summary = await bot.llm_client.summarize_paper(paper, language=language)
 
-            # Send summary (handle long messages)
+            # Create thread for the summary
             if interaction.channel:
-                await send_long_message(interaction.channel, summary)  # type: ignore[arg-type]
+                # Create initial message to attach thread to
+                initial_msg = await interaction.channel.send(  # type: ignore[union-attr]
+                    f"📝 Generating summary for: **{paper.title[:100]}...**"
+                )
+
+                # Create thread
+                thread = await initial_msg.create_thread(
+                    name=f"Summary: {paper.title[:80]}",
+                    auto_archive_duration=1440
+                )
+
+                # Send summary in thread
+                await send_long_message(thread, summary)
+
+                # Update initial message with thread link
+                await interaction.followup.send(
+                    f"✅ Summary generated! View it in the thread: {thread.mention}"
+                )
             else:
+                # Fallback if no channel (shouldn't happen in normal usage)
                 await interaction.followup.send(summary[:2000])
 
         except arxiv.HTTPError as e:

@@ -242,15 +242,31 @@ class LLMClient:
 
         return "Maximum iterations reached. Please try a simpler query."
 
-    async def summarize_paper(self, paper: Any) -> str:
+    async def summarize_paper(self, paper: Any, language: str = "en") -> str:
         """Generate an AI-powered summary of a research paper.
 
         Args:
             paper: Paper object with title, authors, abstract, etc.
+            language: Target language for the summary (e.g., 'en', 'ja', 'zh', 'ko')
 
         Returns:
             Formatted summary with key points
         """
+        # Language-specific instructions
+        language_instructions = {
+            "en": "in English",
+            "ja": "in Japanese (日本語)",
+            "zh": "in Chinese (中文)",
+            "ko": "in Korean (한국어)",
+            "es": "in Spanish (Español)",
+            "fr": "in French (Français)",
+            "de": "in German (Deutsch)",
+        }
+
+        lang_instruction = language_instructions.get(
+            language.lower(), f"in {language}"
+        )
+
         # Prepare paper information for the LLM
         paper_info = f"""
 Title: {paper.title}
@@ -264,7 +280,7 @@ Abstract:
 """
 
         prompt = f"""You are a research paper analysis assistant. Please provide a concise \
-summary of the following research paper.
+summary of the following research paper {lang_instruction}.
 
 {paper_info}
 
@@ -281,7 +297,8 @@ Format your response as:
 • [Point 2]
 • [Point 3]
 
-Keep the language technical but accessible. Focus on the core innovation and results."""
+Keep the language technical but accessible. Focus on the core innovation and results. \
+Write your entire response {lang_instruction}."""
 
         try:
             response: Message = self.client.messages.create(

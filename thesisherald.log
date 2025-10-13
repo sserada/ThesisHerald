@@ -1,0 +1,118 @@
+2025-10-14 03:51:30,813 - __main__ - INFO - Loading configuration...
+2025-10-14 03:51:30,813 - __main__ - INFO - Creating bot instance...
+2025-10-14 03:51:30,814 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-10-14 03:51:30,881 - thesisherald.bot - INFO - LLM client initialized
+2025-10-14 03:51:30,882 - thesisherald.scheduler - INFO - Scheduling daily notification at 09:00
+2025-10-14 03:51:30,882 - __main__ - INFO - Starting bot and scheduler...
+2025-10-14 03:51:30,882 - discord.client - INFO - logging in using static token
+2025-10-14 03:51:30,884 - thesisherald.scheduler - INFO - Scheduler started
+2025-10-14 03:51:31,583 - thesisherald.bot - INFO - Setting up bot...
+2025-10-14 03:51:31,996 - thesisherald.bot - INFO - Synced commands to guild 1332770795621187604
+2025-10-14 03:51:32,461 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 306d105e42d703f67891c13941c96227).
+2025-10-14 03:51:34,464 - thesisherald.bot - INFO - Logged in as ThesisHerald#3217 (ID: 1424618884173922357)
+2025-10-14 03:51:34,464 - thesisherald.bot - INFO - Bot is ready!
+2025-10-14 03:52:15,065 - arxiv - INFO - Requesting page (first: True, try: 0): https://export.arxiv.org/api/query?search_query=&id_list=2510.09596v1&sortBy=relevance&sortOrder=descending&start=0&max_results=100
+2025-10-14 03:52:15,584 - arxiv - INFO - Got first page: 1 of 1 total results
+2025-10-14 03:52:16,207 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 404 Not Found"
+2025-10-14 03:52:16,209 - thesisherald.llm_client - ERROR - Error generating paper summary: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CU5hgkjzGWq8sx2CgBPgp'}
+Traceback (most recent call last):
+  File "/Users/sou/workspace/ThesisHerald/src/thesisherald/llm_client.py", line 287, in summarize_paper
+    response: Message = self.client.messages.create(
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=self.model,
+        ^^^^^^^^^^^^^^^^^
+        max_tokens=self.max_tokens,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        messages=[{"role": "user", "content": prompt}],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/sou/workspace/ThesisHerald/.venv/lib/python3.13/site-packages/anthropic/_utils/_utils.py", line 282, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/sou/workspace/ThesisHerald/.venv/lib/python3.13/site-packages/anthropic/resources/messages/messages.py", line 930, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/v1/messages",
+        ^^^^^^^^^^^^^^^
+    ...<26 lines>...
+        stream_cls=Stream[RawMessageStreamEvent],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/sou/workspace/ThesisHerald/.venv/lib/python3.13/site-packages/anthropic/_base_client.py", line 1324, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sou/workspace/ThesisHerald/.venv/lib/python3.13/site-packages/anthropic/_base_client.py", line 1112, in request
+    raise self._make_status_error_from_response(err.response) from None
+anthropic.NotFoundError: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CU5hgkjzGWq8sx2CgBPgp'}
+2025-10-14 03:54:42,094 - __main__ - INFO - Received signal 2, shutting down...
+2025-10-14 03:54:42,094 - thesisherald.scheduler - INFO - Stopping scheduler...
+2025-10-14 03:54:58,489 - thesisherald.scheduler - INFO - Stopping scheduler...
+2025-10-14 03:55:49,410 - __main__ - INFO - Loading configuration...
+2025-10-14 03:55:49,410 - __main__ - INFO - Creating bot instance...
+2025-10-14 03:55:49,411 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-10-14 03:55:49,473 - thesisherald.bot - INFO - LLM client initialized
+2025-10-14 03:55:49,474 - thesisherald.scheduler - INFO - Scheduling daily notification at 09:00
+2025-10-14 03:55:49,474 - __main__ - INFO - Starting bot and scheduler...
+2025-10-14 03:55:49,474 - discord.client - INFO - logging in using static token
+2025-10-14 03:55:49,475 - thesisherald.scheduler - INFO - Scheduler started
+2025-10-14 03:55:50,111 - thesisherald.bot - INFO - Setting up bot...
+2025-10-14 03:55:50,376 - thesisherald.bot - INFO - Synced commands to guild 1332770795621187604
+2025-10-14 03:55:51,134 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 8560423b10c10197495f43b357690f1b).
+2025-10-14 03:55:53,137 - thesisherald.bot - INFO - Logged in as ThesisHerald#3217 (ID: 1424618884173922357)
+2025-10-14 03:55:53,137 - thesisherald.bot - INFO - Bot is ready!
+2025-10-14 03:56:04,000 - arxiv - INFO - Requesting page (first: True, try: 0): https://export.arxiv.org/api/query?search_query=&id_list=2510.09596v1&sortBy=relevance&sortOrder=descending&start=0&max_results=100
+2025-10-14 03:56:04,261 - arxiv - INFO - Got first page: 1 of 1 total results
+2025-10-14 03:56:04,529 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 404 Not Found"
+2025-10-14 03:56:04,530 - thesisherald.llm_client - ERROR - Error generating paper summary: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20240620'}, 'request_id': 'req_011CU5hyb2KcuRnuzmAdvhVB'}
+Traceback (most recent call last):
+  File "/Users/sou/workspace/ThesisHerald/src/thesisherald/llm_client.py", line 287, in summarize_paper
+    response: Message = self.client.messages.create(
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=self.model,
+        ^^^^^^^^^^^^^^^^^
+        max_tokens=self.max_tokens,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        messages=[{"role": "user", "content": prompt}],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/sou/workspace/ThesisHerald/.venv/lib/python3.13/site-packages/anthropic/_utils/_utils.py", line 282, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/sou/workspace/ThesisHerald/.venv/lib/python3.13/site-packages/anthropic/resources/messages/messages.py", line 930, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/v1/messages",
+        ^^^^^^^^^^^^^^^
+    ...<26 lines>...
+        stream_cls=Stream[RawMessageStreamEvent],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/sou/workspace/ThesisHerald/.venv/lib/python3.13/site-packages/anthropic/_base_client.py", line 1324, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sou/workspace/ThesisHerald/.venv/lib/python3.13/site-packages/anthropic/_base_client.py", line 1112, in request
+    raise self._make_status_error_from_response(err.response) from None
+anthropic.NotFoundError: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20240620'}, 'request_id': 'req_011CU5hyb2KcuRnuzmAdvhVB'}
+2025-10-14 03:58:11,958 - __main__ - INFO - Received signal 2, shutting down...
+2025-10-14 03:58:11,958 - thesisherald.scheduler - INFO - Stopping scheduler...
+2025-10-14 03:58:35,608 - thesisherald.scheduler - INFO - Stopping scheduler...
+2025-10-14 03:59:23,264 - __main__ - INFO - Loading configuration...
+2025-10-14 03:59:23,264 - __main__ - INFO - Creating bot instance...
+2025-10-14 03:59:23,265 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-10-14 03:59:23,335 - thesisherald.bot - INFO - LLM client initialized
+2025-10-14 03:59:23,335 - thesisherald.scheduler - INFO - Scheduling daily notification at 09:00
+2025-10-14 03:59:23,336 - __main__ - INFO - Starting bot and scheduler...
+2025-10-14 03:59:23,336 - discord.client - INFO - logging in using static token
+2025-10-14 03:59:23,337 - thesisherald.scheduler - INFO - Scheduler started
+2025-10-14 03:59:24,236 - thesisherald.bot - INFO - Setting up bot...
+2025-10-14 03:59:24,751 - thesisherald.bot - INFO - Synced commands to guild 1332770795621187604
+2025-10-14 03:59:25,284 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 2682a91fbf9c481553dd78d117f18b9a).
+2025-10-14 03:59:27,289 - thesisherald.bot - INFO - Logged in as ThesisHerald#3217 (ID: 1424618884173922357)
+2025-10-14 03:59:27,289 - thesisherald.bot - INFO - Bot is ready!
+2025-10-14 03:59:29,805 - arxiv - INFO - Requesting page (first: True, try: 0): https://export.arxiv.org/api/query?search_query=&id_list=2510.09596v1&sortBy=relevance&sortOrder=descending&start=0&max_results=100
+2025-10-14 03:59:29,898 - arxiv - INFO - Got first page: 1 of 1 total results
+2025-10-14 03:59:38,629 - httpx - INFO - HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2025-10-14 04:03:02,207 - __main__ - INFO - Received signal 2, shutting down...
+2025-10-14 04:03:02,207 - thesisherald.scheduler - INFO - Stopping scheduler...
