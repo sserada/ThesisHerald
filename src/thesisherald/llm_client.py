@@ -241,3 +241,76 @@ class LLMClient:
                 return f"An error occurred: {str(e)}"
 
         return "Maximum iterations reached. Please try a simpler query."
+
+    async def summarize_paper(self, paper: Any) -> str:
+        """Generate an AI-powered summary of a research paper.
+
+        Args:
+            paper: Paper object with title, authors, abstract, etc.
+
+        Returns:
+            Formatted summary with key points
+        """
+        # Prepare paper information for the LLM
+        paper_info = f"""
+Title: {paper.title}
+Authors: {', '.join(paper.authors[:5])}{'...' if len(paper.authors) > 5 else ''}
+Published: {paper.published.strftime('%Y-%m-%d')}
+arXiv ID: {paper.arxiv_id}
+Categories: {', '.join(paper.categories)}
+
+Abstract:
+{paper.summary}
+"""
+
+        prompt = f"""You are a research paper analysis assistant. Please provide a concise \
+summary of the following research paper.
+
+{paper_info}
+
+Please provide:
+1. A brief summary (3-5 sentences) explaining the main contribution and findings
+2. Key contributions as bullet points (3-5 points)
+
+Format your response as:
+**Summary:**
+[Your 3-5 sentence summary]
+
+**Key Contributions:**
+• [Point 1]
+• [Point 2]
+• [Point 3]
+
+Keep the language technical but accessible. Focus on the core innovation and results."""
+
+        try:
+            response: Message = self.client.messages.create(
+                model=self.model,
+                max_tokens=self.max_tokens,
+                messages=[{"role": "user", "content": prompt}],
+            )
+
+            # Extract text content
+            text_content = []
+            for block in response.content:
+                if isinstance(block, TextBlock):
+                    text_content.append(block.text)
+
+            summary = "\n".join(text_content)
+
+            # Format final output
+            result = f"""📄 **Paper Summary**
+
+**Title:** {paper.title}
+**Authors:** {', '.join(paper.authors[:3])}{'...' if len(paper.authors) > 3 else ''}
+**Published:** {paper.published.strftime('%Y-%m-%d')}
+**arXiv ID:** {paper.arxiv_id}
+**PDF:** {paper.pdf_url}
+
+{summary}
+"""
+            return result
+
+        except Exception as e:
+            logger.exception(f"Error generating paper summary: {e}")
+            return f"❌ Failed to generate summary: {str(e)}"
