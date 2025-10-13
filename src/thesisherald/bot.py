@@ -1,6 +1,7 @@
 """Discord bot implementation for ThesisHerald."""
 
 import logging
+from datetime import datetime
 from typing import Any
 
 import arxiv
@@ -68,7 +69,7 @@ class ThesisHeraldBot(commands.Bot):
     async def send_papers_to_channel(
         self, channel_id: int, papers: list[Any]
     ) -> None:
-        """Send paper notifications to a Discord channel."""
+        """Send paper notifications to a Discord channel in a thread."""
         channel = self.get_channel(channel_id)
         if not channel or not isinstance(channel, discord.TextChannel):
             logger.error(f"Channel {channel_id} not found or not a text channel")
@@ -78,16 +79,22 @@ class ThesisHeraldBot(commands.Bot):
             await channel.send("No new papers found today.")
             return
 
-        # Send header message
-        await channel.send(
-            f"📚 **Daily Paper Update** - Found {len(papers)} new papers:\n"
+        # Send header message and create thread
+        today = datetime.now().strftime("%Y-%m-%d")
+
+        header_message = await channel.send(
+            f"📚 **Daily Paper Update** - Found {len(papers)} new papers:"
+        )
+        thread = await header_message.create_thread(
+            name=f"Daily Papers: {today} ({len(papers)} papers)",
+            auto_archive_duration=1440  # 24 hours
         )
 
-        # Send each paper as a separate message to avoid Discord's character limit
+        # Send each paper to the thread
         for i, paper in enumerate(papers, 1):
             try:
-                message = f"**[{i}/{len(papers)}]**\n{paper.format_discord_message()}"
-                await channel.send(message)
+                message = f"**[{i}/{len(papers)}]**\n{paper.format_discord_message()}\n{'-' * 50}"
+                await thread.send(message)
             except discord.HTTPException as e:
                 logger.error(f"Failed to send paper {paper.arxiv_id}: {e}")
 
@@ -129,13 +136,30 @@ def create_bot(config: Config) -> ThesisHeraldBot:
                 )
                 return
 
+            # Send initial response
             await interaction.followup.send(
                 f"📚 Found {len(papers)} papers in '{category}':"
             )
 
+            # Get channel and send message to create thread from
+            channel = interaction.channel
+            if not channel or not isinstance(channel, discord.TextChannel):
+                await interaction.followup.send("❌ This command must be used in a text channel.")
+                return
+
+            # Create thread from a message in the channel
+            initial_message = await channel.send(
+                f"Search results for **{category}**:"
+            )
+            thread = await initial_message.create_thread(
+                name=f"Search: {category} ({len(papers)} papers)",
+                auto_archive_duration=1440  # 24 hours
+            )
+
+            # Send all papers in the thread
             for i, paper in enumerate(papers, 1):
-                message = f"**[{i}/{len(papers)}]**\n{paper.format_discord_message()}"
-                await interaction.followup.send(message)
+                message = f"**[{i}/{len(papers)}]**\n{paper.format_discord_message()}\n{'-' * 50}"
+                await thread.send(message)
 
         except Exception as e:
             logger.exception("Error in search command")
@@ -179,13 +203,30 @@ def create_bot(config: Config) -> ThesisHeraldBot:
                 )
                 return
 
+            # Send initial response
             await interaction.followup.send(
                 f"📚 Found {len(papers)} papers for keywords '{keywords}':"
             )
 
+            # Get channel and send message to create thread from
+            channel = interaction.channel
+            if not channel or not isinstance(channel, discord.TextChannel):
+                await interaction.followup.send("❌ This command must be used in a text channel.")
+                return
+
+            # Create thread from a message in the channel
+            initial_message = await channel.send(
+                f"Search results for keywords: **{keywords}**"
+            )
+            thread = await initial_message.create_thread(
+                name=f"Keywords: {keywords[:80]} ({len(papers)} papers)",
+                auto_archive_duration=1440  # 24 hours
+            )
+
+            # Send all papers in the thread
             for i, paper in enumerate(papers, 1):
-                message = f"**[{i}/{len(papers)}]**\n{paper.format_discord_message()}"
-                await interaction.followup.send(message)
+                message = f"**[{i}/{len(papers)}]**\n{paper.format_discord_message()}\n{'-' * 50}"
+                await thread.send(message)
 
         except Exception as e:
             logger.exception("Error in keywords command")
