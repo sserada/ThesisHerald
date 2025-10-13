@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import re
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -9,6 +10,45 @@ import arxiv
 from deep_translator import GoogleTranslator  # type: ignore[import-untyped]
 
 logger = logging.getLogger(__name__)
+
+
+def extract_arxiv_id(input_string: str) -> str | None:
+    """Extract arXiv ID from various input formats.
+
+    Supports:
+    - Plain ID: 2010.11929, 2010.11929v1
+    - Abstract URL: https://arxiv.org/abs/2010.11929
+    - PDF URL: https://arxiv.org/pdf/2010.11929.pdf
+    - Old format: arxiv:2010.11929
+
+    Args:
+        input_string: User input (ID or URL)
+
+    Returns:
+        Extracted arXiv ID without version, or None if invalid
+    """
+    input_string = input_string.strip()
+
+    # Pattern for arXiv ID: YYMM.NNNNN or YYMM.NNNNNvN
+    arxiv_id_pattern = r"(\d{4}\.\d{4,5})(v\d+)?"
+
+    # Try direct ID format
+    match = re.fullmatch(arxiv_id_pattern, input_string)
+    if match:
+        return match.group(1)  # Return without version
+
+    # Try arxiv: prefix format
+    if input_string.startswith("arxiv:"):
+        match = re.search(arxiv_id_pattern, input_string)
+        if match:
+            return match.group(1)
+
+    # Try URL formats
+    match = re.search(r"/(?:abs|pdf)/(" + arxiv_id_pattern + r")", input_string)
+    if match:
+        return match.group(1)  # Return ID without version
+
+    return None
 
 
 @dataclass

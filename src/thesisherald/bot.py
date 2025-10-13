@@ -9,7 +9,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from thesisherald.arxiv_client import ArxivClient
+from thesisherald.arxiv_client import ArxivClient, extract_arxiv_id
 from thesisherald.config import Config
 from thesisherald.llm_client import LLMClient
 
@@ -288,6 +288,66 @@ def create_bot(config: Config) -> ThesisHeraldBot:
                 await interaction.followup.send(
                     f"❌ An error occurred while searching: {str(e)}"
                 )
+
+    @bot.tree.command(
+        name="summarize",
+        description="Generate AI-powered summary of a research paper"
+    )
+    @app_commands.describe(
+        arxiv_input="arXiv ID or URL (e.g., 2010.11929 or https://arxiv.org/abs/2010.11929)"
+    )
+    async def summarize(interaction: discord.Interaction, arxiv_input: str) -> None:
+        """Generate an AI-powered summary of a research paper."""
+        # Check if LLM is enabled
+        if not bot.llm_client:
+            await interaction.response.send_message(
+                "❌ LLM integration is not enabled. Please configure ANTHROPIC_API_KEY."
+            )
+            return
+
+        await interaction.response.defer()
+
+        try:
+            # Extract arXiv ID from input
+            arxiv_id = extract_arxiv_id(arxiv_input)
+            if not arxiv_id:
+                await interaction.followup.send(
+                    f"❌ Invalid arXiv ID or URL format: `{arxiv_input}`\n\n"
+                    "**Supported formats:**\n"
+                    "• arXiv ID: `2010.11929`\n"
+                    "• Abstract URL: `https://arxiv.org/abs/2010.11929`\n"
+                    "• PDF URL: `https://arxiv.org/pdf/2010.11929.pdf`"
+                )
+                return
+
+            # Fetch paper from arXiv
+            paper = await bot.arxiv_client.get_paper_by_id(arxiv_id)
+            if not paper:
+                await interaction.followup.send(
+                    f"❌ Paper not found: `{arxiv_id}`\n\n"
+                    "Please check the arXiv ID and try again."
+                )
+                return
+
+            # Generate summary using LLM
+            summary = await bot.llm_client.summarize_paper(paper)
+
+            # Send summary (handle long messages)
+            if interaction.channel:
+                await send_long_message(interaction.channel, summary)  # type: ignore[arg-type]
+            else:
+                await interaction.followup.send(summary[:2000])
+
+        except arxiv.HTTPError as e:
+            logger.exception("arXiv API error in summarize command")
+            await interaction.followup.send(
+                f"❌ arXiv API error (HTTP {e.status}). Please try again later."
+            )
+        except Exception as e:
+            logger.exception("Error in summarize command")
+            await interaction.followup.send(
+                f"❌ An error occurred: {str(e)}"
+            )
 
     @bot.tree.command(
         name="daily",
