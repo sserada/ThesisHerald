@@ -93,7 +93,7 @@ class ThesisHeraldBot(commands.Bot):
         # Send each paper to the thread
         for i, paper in enumerate(papers, 1):
             try:
-                message = f"**[{i}/{len(papers)}]**\n{paper.format_discord_message()}"
+                message = f"**[{i}/{len(papers)}]**\n{paper.format_discord_message()}\n{'-' * 50}"
                 await thread.send(message)
             except discord.HTTPException as e:
                 logger.error(f"Failed to send paper {paper.arxiv_id}: {e}")
@@ -158,7 +158,7 @@ def create_bot(config: Config) -> ThesisHeraldBot:
 
             # Send all papers in the thread
             for i, paper in enumerate(papers, 1):
-                message = f"**[{i}/{len(papers)}]**\n{paper.format_discord_message()}"
+                message = f"**[{i}/{len(papers)}]**\n{paper.format_discord_message()}\n{'-' * 50}"
                 await thread.send(message)
 
         except Exception as e:
@@ -225,7 +225,7 @@ def create_bot(config: Config) -> ThesisHeraldBot:
 
             # Send all papers in the thread
             for i, paper in enumerate(papers, 1):
-                message = f"**[{i}/{len(papers)}]**\n{paper.format_discord_message()}"
+                message = f"**[{i}/{len(papers)}]**\n{paper.format_discord_message()}\n{'-' * 50}"
                 await thread.send(message)
 
         except Exception as e:
