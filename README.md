@@ -6,7 +6,9 @@
 
 A Discord bot for automated research paper collection, notification, and analysis using arXiv API and LLM integration.
 
-<!-- Add demo screenshot/video here -->
+## 🎬 Demo
+
+https://github.com/user-attachments/assets/b0698b26-ebc5-47e7-b512-0723a7b352ee
 
 ## ✨ Features
 
