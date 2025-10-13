@@ -18,8 +18,12 @@ A Discord bot for automated research paper collection, notification, and analysi
 - **Scheduled Tasks**: Configurable daily notifications at specified times
 - **Thread-Based Display**: Search results organized in Discord threads for clean channel management
 
-### 🤖 AI-Powered Search
+### 🤖 AI-Powered Features
 - **Conversational Search**: Ask natural language questions using `/ask` command
+- **Paper Summarization**: Generate AI-powered summaries with `/summarize` command
+  - Support for 7+ languages (English, Japanese, Chinese, Korean, Spanish, French, German)
+  - Key contributions and findings extracted automatically
+  - Thread-based display for organized reading
 - **LLM Integration**: Powered by Anthropic Claude for intelligent paper recommendations
 - **Web Search Tool**: LLM can search the web for real-time research information
 - **arXiv Integration**: LLM can directly search and retrieve papers from arXiv
@@ -128,6 +132,16 @@ For detailed setup instructions, see [Deployment Guide](docs/deployment.md#disco
   - The AI will search both web and arXiv to provide contextual answers with relevant papers
   - Requires `ANTHROPIC_API_KEY` to be configured
 
+- `/summarize <arxiv_input> [language]` - Generate AI-powered summary of a research paper
+  - Example: `/summarize 2010.11929` (English summary)
+  - Example: `/summarize https://arxiv.org/abs/2010.11929 language:ja` (Japanese summary)
+  - Example: `/summarize https://arxiv.org/pdf/2010.11929.pdf language:zh` (Chinese summary)
+  - Supports multiple input formats: arXiv ID, abstract URL, PDF URL
+  - Supported languages: en, ja, zh, ko, es, fr, de (default: en)
+  - Summary includes main contributions and key findings
+  - Results displayed in organized thread
+  - Requires `ANTHROPIC_API_KEY` to be configured
+
 ### Thread-Based Results
 
 All search commands create dedicated threads to keep your channel organized:
@@ -153,8 +167,8 @@ Edit your `.env` file to customize:
   - Supported languages: ja (Japanese), ko (Korean), zh-CN (Chinese), es (Spanish), fr (French), de (German), and more
 
 **AI Features:**
-- **ANTHROPIC_API_KEY**: Your Anthropic API key (required for `/ask` command)
-- **LLM_MODEL**: Claude model to use (default: claude-3-5-sonnet-20241022)
+- **ANTHROPIC_API_KEY**: Your Anthropic API key (required for `/ask` and `/summarize` commands)
+- **LLM_MODEL**: Claude model to use (default: claude-sonnet-4-5-20250929)
 - **LLM_MAX_TOKENS**: Maximum tokens per response (default: 4096)
 
 ### Supported arXiv Categories
@@ -228,8 +242,8 @@ This project is open source and available under the MIT License.
 
 We're continuously improving ThesisHerald. Upcoming features include:
 
-- **Paper Summarization**: `/summarize` command to generate concise paper summaries
 - **Weekly Digests**: Automated weekly summaries of important papers in your field
+- **Paper Comparison**: Compare multiple papers side-by-side
 - **Enhanced Filtering**: More advanced search and filtering options
 - **Performance Monitoring**: Better logging and performance tracking
 
@@ -237,9 +251,10 @@ For detailed development plans, see [docs/plan.md](docs/plan.md).
 
 ## 💰 API Costs
 
-**Anthropic Claude API** (for `/ask` command):
-- Claude 3.5 Sonnet: ~$3 per million input tokens, ~$15 per million output tokens
+**Anthropic Claude API** (for `/ask` and `/summarize` commands):
+- Claude Sonnet 4.5: ~$3 per million input tokens, ~$15 per million output tokens
 - Typical `/ask` query: 1000-3000 tokens (~$0.01-0.05 per query)
+- Typical `/summarize` request: 500-2000 tokens (~$0.01-0.03 per summary)
 - Monitor usage in your [Anthropic dashboard](https://console.anthropic.com/)
 - Set API rate limits if needed to control costs
 
@@ -253,6 +268,13 @@ For detailed development plans, see [docs/plan.md](docs/plan.md).
 - Translation may fail for very long abstracts (automatically falls back to English)
 
 ## 📝 Changelog
+
+### v1.1.0 (2025-10-14)
+- ✨ Added `/summarize` command for AI-powered paper summaries
+- ✨ Multi-language support for summaries (7+ languages)
+- ✨ Thread-based summary display
+- 🐛 Fixed Claude model name to correct version (claude-sonnet-4-5-20250929)
+- 📝 Updated documentation with summarization features
 
 ### v1.0.0 (2025-10-14)
 - ✨ Initial release
