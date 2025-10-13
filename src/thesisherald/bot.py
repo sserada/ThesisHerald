@@ -136,10 +136,20 @@ def create_bot(config: Config) -> ThesisHeraldBot:
                 )
                 return
 
-            # Send initial message and create thread
-            initial_message = await interaction.followup.send(
-                f"📚 Found {len(papers)} papers in '{category}':",
-                wait=True
+            # Send initial response
+            await interaction.followup.send(
+                f"📚 Found {len(papers)} papers in '{category}':"
+            )
+
+            # Get channel and send message to create thread from
+            channel = interaction.channel
+            if not channel or not isinstance(channel, discord.TextChannel):
+                await interaction.followup.send("❌ This command must be used in a text channel.")
+                return
+
+            # Create thread from a message in the channel
+            initial_message = await channel.send(
+                f"Search results for **{category}**:"
             )
             thread = await initial_message.create_thread(
                 name=f"Search: {category} ({len(papers)} papers)",
@@ -193,10 +203,20 @@ def create_bot(config: Config) -> ThesisHeraldBot:
                 )
                 return
 
-            # Send initial message and create thread
-            initial_message = await interaction.followup.send(
-                f"📚 Found {len(papers)} papers for keywords '{keywords}':",
-                wait=True
+            # Send initial response
+            await interaction.followup.send(
+                f"📚 Found {len(papers)} papers for keywords '{keywords}':"
+            )
+
+            # Get channel and send message to create thread from
+            channel = interaction.channel
+            if not channel or not isinstance(channel, discord.TextChannel):
+                await interaction.followup.send("❌ This command must be used in a text channel.")
+                return
+
+            # Create thread from a message in the channel
+            initial_message = await channel.send(
+                f"Search results for keywords: **{keywords}**"
             )
             thread = await initial_message.create_thread(
                 name=f"Keywords: {keywords[:80]} ({len(papers)} papers)",
