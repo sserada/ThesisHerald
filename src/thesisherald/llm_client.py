@@ -361,6 +361,10 @@ Write your entire response {lang_instruction}."""
         )
 
         try:
+            logger.info(
+                f"Generating digest for topic='{topic}', language='{language}'"
+            )
+
             # Search for recent papers on the topic
             papers = await self.arxiv_client.search_by_keywords(
                 keywords=[topic],
@@ -383,10 +387,10 @@ Write your entire response {lang_instruction}."""
 
             papers_list = "\n\n".join(papers_info)
 
-            prompt = f"""You are a research digest curator. Analyze the following recent papers \
-on the topic "{topic}" and create a weekly digest {lang_instruction}.
+            prompt = f"""You are a research digest curator. Your task is to analyze recent \
+research papers and create a weekly digest {lang_instruction}.
 
-RECENT PAPERS:
+RECENT PAPERS ON "{topic}":
 {papers_list}
 
 Please provide:
@@ -415,8 +419,9 @@ Format your response as:
 
 [Repeat for each top paper]
 
-Focus on papers with novel contributions, practical impact, or significant advancement. \
-Write your entire response {lang_instruction}."""
+IMPORTANT: Write your ENTIRE response {lang_instruction}. This includes the topic name, \
+overview, paper titles, summaries, contributions, and all explanatory text. Focus on papers \
+with novel contributions, practical impact, or significant advancement."""
 
             response: Message = self.client.messages.create(
                 model=self.model,
